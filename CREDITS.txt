@@ -1,0 +1,10 @@
+
+Thanks to
+
+- Robin Stuart
+- Robert Elliot
+- Daniel Gredler
+
+for Okapi Barcode http://www.okapibarcode.org.uk/
+
+and PNG writer https://github.com/gredler/jdk9-png-writer-backport
