@@ -175,7 +175,7 @@ public class UspsOneCode extends Symbol {
 
     public UspsOneCode() {
         this.defaultHeight = 8;
-        this.humanReadableLocation = HumanReadableLocation.NONE;
+        setHumanReadableLocation(HumanReadableLocation.NONE);
     }
 
     @Override
@@ -403,7 +403,7 @@ public class UspsOneCode extends Symbol {
         texts.clear();
 
         int baseY;
-        if (humanReadableLocation == TOP) {
+        if (getHumanReadableLocation() == TOP) {
             baseY = getTheoreticalHumanReadableHeight();
         } else {
             baseY = 0;
@@ -445,9 +445,9 @@ public class UspsOneCode extends Symbol {
         symbolWidth = (int) Math.ceil(((pattern[0].length() - 1) * 2.43 * w) + w); // final bar doesn't need extra whitespace
         symbolHeight = defaultHeight;
 
-        if (humanReadableLocation != NONE && readable.length() > 0) {
+        if (getHumanReadableLocation() != NONE && readable.length() > 0) {
             double baseline;
-            if (humanReadableLocation == TOP) {
+            if (getHumanReadableLocation() == TOP) {
                 baseline = fontSize;
             } else {
                 baseline = getHeight() + fontSize;

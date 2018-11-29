@@ -41,7 +41,7 @@ public class MicroQrCode extends Symbol {
      * Sets the preferred symbol size. This value may be ignored if the
      * data string is too large to fit into the specified symbol. Input
      * values correspond to symbol sizes as shown in the following table.
-     * <table summary="Range of Micro QR symbol sizes">
+     * <table><caption>Range of Micro QR symbol sizes</caption>
      * <tbody>
      * <tr>
      * <th>Input</th>
@@ -80,7 +80,7 @@ public class MicroQrCode extends Symbol {
     /**
      * Set the amount of symbol space allocated to error correction.
      * Levels are predefined according to the following table:
-     * <table summary="Micro QR Error correction levels">
+     * <table><caption>Micro QR Error correction levels</caption>
      * <tbody>
      * <tr>
      * <th>ECC Level</th>

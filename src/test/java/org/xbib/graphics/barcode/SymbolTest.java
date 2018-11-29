@@ -1,5 +1,6 @@
 package org.xbib.graphics.barcode;
 
+import static java.lang.Integer.toHexString;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -31,10 +32,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
 
 import org.junit.Assert;
+import org.junit.ComparisonFailure;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -92,6 +95,8 @@ import com.google.zxing.qrcode.QRCodeReader;
 @RunWith(Parameterized.class)
 public class SymbolTest {
 
+    private static final Logger logger = Logger.getLogger(SymbolTest.class.getName());
+
     /** The font used to render human-readable text when drawing the symbologies; allows for consistent results across operating systems. */
     private static final Font DEJA_VU_SANS;
 
@@ -142,10 +147,10 @@ public class SymbolTest {
             for (File file : getPropertiesFiles(dir)) {
                 String fileBaseName = file.getName().replaceAll(".properties", "");
                 File codewordsFile = new File(file.getParentFile(), fileBaseName + ".codewords");
-                File pngFile = new File(file.getParentFile(), fileBaseName + ".png");
+                File pngFile = new File(file.getParentFile(), fileBaseName + ".new.png");
                 File errorFile = new File(file.getParentFile(), fileBaseName + ".error");
                 for (Map< String, String > properties : readProperties(file)) {
-                    data.add(new Object[] { symbol, properties, codewordsFile, pngFile, errorFile, symbolName, fileBaseName });
+                    data.add(new Object[] { symbol, properties, codewordsFile, pngFile, errorFile });
                 }
             }
         }
@@ -159,16 +164,12 @@ public class SymbolTest {
      * @param codewordsFile the file containing the expected intermediate coding of the bar code, if this test verifies successful behavior
      * @param pngFile the file containing the expected final rendering of the bar code, if this test verifies successful behavior
      * @param errorFile the file containing the expected error message, if this test verifies a failure
-     * @param symbolName the name of the symbol type (used only for test naming)
-     * @param fileBaseName the base name of the test file (used only for test naming)
      */
     public SymbolTest(Class< ? extends Symbol > symbolType,
                       Map< String, String > properties,
                       File codewordsFile,
                       File pngFile,
-                      File errorFile,
-                      String symbolName,
-                      String fileBaseName) {
+                      File errorFile) {
         this.symbolType = symbolType;
         this.properties = properties;
         this.codewordsFile = codewordsFile;
@@ -190,11 +191,12 @@ public class SymbolTest {
         } catch (InvocationTargetException e) {
             symbol.errorMsg.append(e.getCause().getMessage());
         }
-        if (codewordsFile.exists() && pngFile.exists()) {
+        if (codewordsFile.exists()) {
             verifySuccess(symbol);
         } else if (errorFile.exists()) {
             verifyError(symbol);
-        } else {
+        }
+        if (!pngFile.exists()) {
             generateExpectationFiles(symbol);
         }
     }
@@ -237,20 +239,24 @@ public class SymbolTest {
         }
 
         // make sure the barcode images match
-        BufferedImage expected = ImageIO.read(pngFile);
-        BufferedImage actual = draw(symbol);
-        assertEqual(expected, actual);
-
-        // if possible, ensure an independent third party (ZXing) can read the generated barcode and agrees on what it represents
-        Reader zxingReader = findReader(symbol);
-        if (zxingReader != null) {
-            LuminanceSource source = new BufferedImageLuminanceSource(expected);
-            BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
-            Map< DecodeHintType, Boolean > hints = Collections.singletonMap(DecodeHintType.PURE_BARCODE, Boolean.TRUE);
-            Result result = zxingReader.decode(bitmap, hints);
-            String zxingData = removeChecksum(result.getText(), symbol);
-            String okapiData = removeStartStopChars(symbol.getContent(), symbol);
-            assertEquals("checking against ZXing results", okapiData, zxingData);
+        if (pngFile.exists()) {
+            BufferedImage expected = ImageIO.read(pngFile);
+            BufferedImage actual = draw(symbol, 10.0d);
+            if (expected != null && actual != null) {
+                logger.info("comparing bits " + pngFile.getName());
+                assertEqual(expected, actual);
+            }
+            // if possible, ensure an independent third party (ZXing) can read the generated barcode and agrees on what it represents
+            Reader zxingReader = findReader(symbol);
+            if (zxingReader != null && expected != null) {
+                LuminanceSource source = new BufferedImageLuminanceSource(expected);
+                BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
+                Map<DecodeHintType, Boolean> hints = Collections.singletonMap(DecodeHintType.PURE_BARCODE, Boolean.TRUE);
+                Result result = zxingReader.decode(bitmap, hints);
+                String zxingData = removeChecksum(result.getText(), symbol);
+                String ourData = removeStartStopChars(symbol.getContent(), symbol);
+                assertEquals("checking against ZXing results", ourData, zxingData);
+            }
         }
     }
 
@@ -261,7 +267,6 @@ public class SymbolTest {
      * @return a ZXing reader that can read the specified symbol
      */
     private static Reader findReader(Symbol symbol) {
-
         if (symbol instanceof Code93) {
             return new Code93Reader();
         } else if (symbol instanceof Code3Of9) {
@@ -396,14 +401,9 @@ public class SymbolTest {
      * @throws IOException if there is any I/O error
      */
     private void generatePngExpectationFile(Symbol symbol) throws IOException {
-        if (!pngFile.exists()) {
-            BufferedImage img = draw(symbol);
-            if (img != null) {
-                //Path path = Paths.get("build", pngFile.getParentFile().getName(), pngFile.getName());
-                //Files.createDirectories(path.getParent());
-                //ImageIO.write(img, "png", path.toFile());
-                ImageIO.write(img, "png", pngFile);
-            }
+        BufferedImage img = draw(symbol, 10.0d);
+        if (img != null) {
+            ImageIO.write(img, "png", pngFile);
         }
     }
 
@@ -428,16 +428,15 @@ public class SymbolTest {
      * @param symbol the symbol to draw
      * @return the resultant image
      */
-    private static BufferedImage draw(Symbol symbol) {
-        int magnification = 10;
-        int width = symbol.getWidth() * magnification;
-        int height = symbol.getHeight() * magnification;
+    private static BufferedImage draw(Symbol symbol, double scalingFactor) {
+        int width = (int) (symbol.getWidth() * scalingFactor);
+        int height = (int) (symbol.getHeight() * scalingFactor);
         if (width > 0 && height > 0) {
             BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
             Graphics2D g2d = img.createGraphics();
             g2d.setPaint(Color.WHITE);
             g2d.fillRect(0, 0, width, height);
-            Java2DRenderer renderer = new Java2DRenderer(g2d, magnification, Color.WHITE, Color.BLACK);
+            Java2DRenderer renderer = new Java2DRenderer(g2d, scalingFactor, Color.WHITE, Color.BLACK, true);
             renderer.render(symbol);
             g2d.dispose();
             return img;
@@ -544,10 +543,10 @@ public class SymbolTest {
         int w = expected.getWidth();
         int h = expected.getHeight();
 
-        Assert.assertEquals("width", w, actual.getWidth());
-        Assert.assertEquals("height", h, actual.getHeight());
+        assertEquals("width", w, actual.getWidth());
+        assertEquals("height", h, actual.getHeight());
 
-        /*int[] expectedPixels = new int[w * h];
+        int[] expectedPixels = new int[w * h];
         expected.getRGB(0, 0, w, h, expectedPixels, 0, w);
 
         int[] actualPixels = new int[w * h];
@@ -559,10 +558,10 @@ public class SymbolTest {
             if (expectedPixel != actualPixel) {
                 int x = i % w;
                 int y = i / w;
-                throw new ComparisonFailure("pixel at " + x + ", " + y, toHexString(expectedPixel), toHexString(actualPixel));
+                throw new ComparisonFailure("pixel at " + x + ", " + y,
+                        toHexString(expectedPixel), toHexString(actualPixel));
             }
         }
-        */
     }
 
     /**
@@ -573,8 +572,7 @@ public class SymbolTest {
      * @return the test configuration properties in the specified file
      * @throws IOException if there is an error reading the properties file
      */
-    private static List< Map< String, String > > readProperties(File propertiesFile) throws IOException {
-
+    private static List<Map< String, String>> readProperties(File propertiesFile) throws IOException {
         String content;
         try {
             byte[] bytes = Files.readAllBytes(propertiesFile.toPath());
@@ -607,11 +605,9 @@ public class SymbolTest {
                 }
             }
         }
-
         if (!properties.isEmpty()) {
             allProperties.add(properties);
         }
-
         return allProperties;
     }
 

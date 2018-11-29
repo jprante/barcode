@@ -54,7 +54,7 @@ public class Nve18 extends Symbol {
 
         // Defer to Code 128
         code128.setDataType(DataType.GS1);
-        code128.setHumanReadableLocation(humanReadableLocation);
+        code128.setHumanReadableLocation(getHumanReadableLocation());
 
         try {
             code128.setContent(content);

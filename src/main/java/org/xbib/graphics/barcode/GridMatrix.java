@@ -173,7 +173,7 @@ public class GridMatrix extends Symbol {
      * Set preferred size, or "version" of the symbol according to the following
      * table. This value may be ignored if the data to be encoded does not fit
      * into a symbol of the selected size.
-     * <table summary="Available Grid Matrix symbol sizes">
+     * <table><caption>Available Grid Matrix symbol sizes</caption>
      * <tbody>
      * <tr>
      * <th><p>
@@ -271,7 +271,7 @@ public class GridMatrix extends Symbol {
     /**
      * Set the preferred amount of the symbol which should be dedicated to error
      * correction data. Values should be selected from the following table:
-     * <table summary="Available options for error correction capacity">
+     * <table><caption>Available options for error correction capacity</caption>
      * <tbody>
      * <tr>
      * <th><p>

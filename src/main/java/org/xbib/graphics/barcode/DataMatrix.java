@@ -117,7 +117,8 @@ public class DataMatrix extends Symbol {
      * Set the prefereed symbol size according to the values in the following
      * table. Values may be ignored if the data is too big to fit in the
      * specified symbol, or if <code>forceSquare</code> mode has been invoked.
-     * <table summary="Available Data Matrix symbol sizes">
+     * <table>
+     *     <caption>Available Data Matrix symbol sizes</caption>
      * <tbody>
      * <tr>
      * <th><p>

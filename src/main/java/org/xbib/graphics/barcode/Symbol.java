@@ -34,7 +34,7 @@ public abstract class Symbol {
     protected int symbolHeight = 0;
     protected int symbolWidth = 0;
     protected int defaultHeight = 40;
-    protected HumanReadableLocation humanReadableLocation = BOTTOM;
+    private HumanReadableLocation humanReadableLocation = BOTTOM;
     protected StringBuilder encodeInfo = new StringBuilder();
     protected byte[] inputBytes;
     protected DataType inputDataType = DataType.ECI;

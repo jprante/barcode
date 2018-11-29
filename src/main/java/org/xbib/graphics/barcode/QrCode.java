@@ -137,7 +137,7 @@ public class QrCode extends Symbol {
      * Sets the preferred symbol size. This value may be ignored if the data
      * string is too large to fit into the specified symbol. Input values
      * correspond to symbol sizes as shown in the following table.
-     * <table summary="Available QR Code sizes">
+     * <table><caption>Available QR Code sizes</caption>
      * <tbody>
      * <tr>
      * <th><p>
@@ -361,7 +361,7 @@ public class QrCode extends Symbol {
     /**
      * Set the amount of symbol space allocated to error correction. Levels are
      * predefined according to the following table:
-     * <table summary="QR Code error correction levels">
+     * <table><caption>QR Code error correction levels</caption>
      * <tbody>
      * <tr>
      * <th>ECC Level</th>

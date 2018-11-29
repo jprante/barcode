@@ -429,7 +429,7 @@ public class Code2Of5 extends Symbol {
         texts.clear();
 
         int baseY;
-        if (humanReadableLocation == TOP) {
+        if (getHumanReadableLocation() == TOP) {
             baseY = getTheoreticalHumanReadableHeight();
         } else {
             baseY = 0;
@@ -478,9 +478,9 @@ public class Code2Of5 extends Symbol {
             rectangles.add(rightBar);
         }
 
-        if (humanReadableLocation != NONE && readable.length() > 0) {
+        if (getHumanReadableLocation() != NONE && readable.length() > 0) {
             double baseline;
-            if (humanReadableLocation == TOP) {
+            if (getHumanReadableLocation() == TOP) {
                 baseline = fontSize;
             } else {
                 baseline = getHeight() + fontSize;

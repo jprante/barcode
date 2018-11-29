@@ -29,7 +29,7 @@ public class Postnet extends Symbol {
     public Postnet() {
         this.mode = Mode.POSTNET;
         this.defaultHeight = 12;
-        this.humanReadableLocation = HumanReadableLocation.NONE;
+        setHumanReadableLocation(HumanReadableLocation.NONE);
     }
 
     /**
@@ -150,7 +150,7 @@ public class Postnet extends Symbol {
         texts.clear();
 
         int baseY;
-        if (humanReadableLocation == TOP) {
+        if (getHumanReadableLocation() == TOP) {
             baseY = getTheoreticalHumanReadableHeight();
         } else {
             baseY = 0;
@@ -174,9 +174,9 @@ public class Postnet extends Symbol {
         symbolWidth = (int) Math.ceil(((pattern[0].length() - 1) * 2.5 * w) + w); // final bar doesn't need extra whitespace
         symbolHeight = defaultHeight;
 
-        if (humanReadableLocation != NONE && readable.length() > 0) {
+        if (getHumanReadableLocation() != NONE && readable.length() > 0) {
             double baseline;
-            if (humanReadableLocation == TOP) {
+            if (getHumanReadableLocation() == TOP) {
                 baseline = fontSize;
             } else {
                 baseline = getHeight() + fontSize;

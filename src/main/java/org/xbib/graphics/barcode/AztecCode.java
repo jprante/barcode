@@ -278,7 +278,8 @@ public class AztecCode extends Symbol {
      * Sets a preferred symbol size. This value may be ignored if data string is
      * too large to fit in the specified symbol size. Values correspond to
      * symbol sizes as shown in the following table:
-     * <table summary="Available Aztec Code symbol sizes">
+     * <table>
+     *     <caption>Available Aztec Code symbol sizes</caption>
      * <tbody>
      * <tr>
      * <th><p>
@@ -483,7 +484,7 @@ public class AztecCode extends Symbol {
      * Sets the preferred minimum amount of symbol space dedicated to error
      * correction. This value will be ignored if a symbol size has been set by
      * <code>setPreferredSize</code> Valid options are:
-     * <table summary="Error correction options">
+     * <table><caption>Error correction options</caption>
      * <tbody>
      * <tr>
      * <th><p>
