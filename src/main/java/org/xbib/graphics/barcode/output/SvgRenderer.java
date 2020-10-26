@@ -23,41 +23,40 @@ public class SvgRenderer implements SymbolRenderer {
     /**
      * The magnification factor to apply.
      */
-    private final double magnification;
+    private final double scale;
 
     /**
      * The paper (background) color.
      */
-    private final Color paper;
+    private final Color background;
 
     /**
      * The ink (foreground) color.
      */
-    private final Color ink;
+    private final Color foreground;
 
     /**
      * Creates a new SVG renderer.
      *
      * @param out           the output stream to render to
-     * @param magnification the magnification factor to apply
-     * @param paper         the paper (background) color
-     * @param ink           the ink (foreground) color
+     * @param scale the magnification factor to apply
+     * @param background         the paper (background) color
+     * @param foreground           the ink (foreground) color
      */
-    public SvgRenderer(OutputStream out, double magnification, Color paper, Color ink) {
+    public SvgRenderer(OutputStream out, double scale, Color background, Color foreground) {
         this.out = out;
-        this.magnification = magnification;
-        this.paper = paper;
-        this.ink = ink;
+        this.scale = scale;
+        this.background = background;
+        this.foreground = foreground;
     }
 
     @Override
     public void render(Symbol symbol) throws IOException {
-
         String content = symbol.getContent();
-        int width = (int) (symbol.getWidth() * magnification);
-        int height = (int) (symbol.getHeight() * magnification);
-        int marginX = (int) (symbol.getQuietZoneHorizontal() * magnification);
-        int marginY = (int) (symbol.getQuietZoneVertical() * magnification);
+        int width = (int) (symbol.getWidth() * scale);
+        int height = (int) (symbol.getHeight() * scale);
+        int marginX = (int) (symbol.getQuietZoneHorizontal() * scale);
+        int marginY = (int) (symbol.getQuietZoneVertical() * scale);
 
         String title;
         if (content == null || content.isEmpty()) {
@@ -66,13 +65,13 @@ public class SvgRenderer implements SymbolRenderer {
             title = content.replaceAll("[\u0000-\u001f]", "");
         }
 
-        String fgColour = String.format("%02X", ink.getRed())
-                + String.format("%02X", ink.getGreen())
-                + String.format("%02X", ink.getBlue());
+        String fgColour = String.format("%02X", foreground.getRed())
+                + String.format("%02X", foreground.getGreen())
+                + String.format("%02X", foreground.getBlue());
 
-        String bgColour = String.format("%02X", paper.getRed())
-                + String.format("%02X", paper.getGreen())
-                + String.format("%02X", paper.getBlue());
+        String bgColour = String.format("%02X", background.getRed())
+                + String.format("%02X", background.getGreen())
+                + String.format("%02X", background.getBlue());
 
         try (ExtendedOutputStreamWriter writer = new ExtendedOutputStreamWriter(out, "%.2f")) {
 
@@ -93,21 +92,21 @@ public class SvgRenderer implements SymbolRenderer {
             // Rectangles
             for (int i = 0; i < symbol.rectangles.size(); i++) {
                 Rectangle2D.Double rect = symbol.rectangles.get(i);
-                writer.append("      <rect x=\"").append((rect.x * magnification) + marginX)
-                        .append("\" y=\"").append((rect.y * magnification) + marginY)
-                        .append("\" width=\"").append(rect.width * magnification)
-                        .append("\" height=\"").append(rect.height * magnification)
+                writer.append("      <rect x=\"").append((rect.x * scale) + marginX)
+                        .append("\" y=\"").append((rect.y * scale) + marginY)
+                        .append("\" width=\"").append(rect.width * scale)
+                        .append("\" height=\"").append(rect.height * scale)
                         .append("\" />\n");
             }
 
             // Text
             for (int i = 0; i < symbol.texts.size(); i++) {
                 TextBox text = symbol.texts.get(i);
-                writer.append("      <text x=\"").append((text.x * magnification) + marginX)
-                        .append("\" y=\"").append((text.y * magnification) + marginY)
+                writer.append("      <text x=\"").append((text.x * scale) + marginX)
+                        .append("\" y=\"").append((text.y * scale) + marginY)
                         .append("\" text-anchor=\"middle\"\n");
                 writer.append("         font-family=\"").append(symbol.getFontName())
-                        .append("\" font-size=\"").append(symbol.getFontSize() * magnification)
+                        .append("\" font-size=\"").append(symbol.getFontSize() * scale)
                         .append("\" fill=\"#").append(fgColour).append("\">\n");
                 writer.append("         ").append(text.text).append("\n");
                 writer.append("      </text>\n");
@@ -122,9 +121,9 @@ public class SvgRenderer implements SymbolRenderer {
                 } else {
                     color = bgColour;
                 }
-                writer.append("      <circle cx=\"").append(((ellipse.x + (ellipse.width / 2)) * magnification) + marginX)
-                        .append("\" cy=\"").append(((ellipse.y + (ellipse.width / 2)) * magnification) + marginY)
-                        .append("\" r=\"").append((ellipse.width / 2) * magnification)
+                writer.append("      <circle cx=\"").append(((ellipse.x + (ellipse.width / 2)) * scale) + marginX)
+                        .append("\" cy=\"").append(((ellipse.y + (ellipse.width / 2)) * scale) + marginY)
+                        .append("\" r=\"").append((ellipse.width / 2) * scale)
                         .append("\" fill=\"#").append(color).append("\" />\n");
             }
 
@@ -138,8 +137,8 @@ public class SvgRenderer implements SymbolRenderer {
                     } else {
                         writer.append("L ");
                     }
-                    writer.append((hexagon.pointX[j] * magnification) + marginX).append(" ")
-                            .append((hexagon.pointY[j] * magnification) + marginY).append(" ");
+                    writer.append((hexagon.pointX[j] * scale) + marginX).append(" ")
+                            .append((hexagon.pointY[j] * scale) + marginY).append(" ");
                 }
                 writer.append("Z\" />\n");
             }

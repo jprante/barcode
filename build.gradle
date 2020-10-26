@@ -3,7 +3,7 @@ plugins {
     id "io.codearte.nexus-staging" version "0.11.0"
 }
 
-printf "Host: %s\nOS: %s %s %s\nJVM: %s %s %s %s\nGroovy: %s\nGradle: %s\n" +
+printf "Host: %s\nOS: %s %s %s\nJVM: %s %s %s %s\nGradle: %s Groovy: %s Java: %s\n" +
         "Build: group: ${project.group} name: ${project.name} version: ${project.version}\n",
         InetAddress.getLocalHost(),
         System.getProperty("os.name"),
@@ -13,8 +13,9 @@ printf "Host: %s\nOS: %s %s %s\nJVM: %s %s %s %s\nGroovy: %s\nGradle: %s\n" +
         System.getProperty("java.vm.version"),
         System.getProperty("java.vm.vendor"),
         System.getProperty("java.vm.name"),
+        gradle.gradleVersion,
         GroovySystem.getVersion(),
-        gradle.gradleVersion
+        JavaVersion.current()
 
 apply plugin: 'java'
 apply plugin: 'maven'
@@ -37,8 +38,10 @@ dependencies {
     wagon "org.apache.maven.wagon:wagon-ssh:${project.property('wagon-ssh.version')}"
 }
 
-sourceCompatibility = JavaVersion.VERSION_1_8
-targetCompatibility = JavaVersion.VERSION_1_8
+compileJava {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
 
 test {
     testLogging {

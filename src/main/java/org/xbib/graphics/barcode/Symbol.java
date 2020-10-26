@@ -20,30 +20,52 @@ import static org.xbib.graphics.barcode.HumanReadableLocation.TOP;
  */
 public abstract class Symbol {
 
-    // TODO: These values to become accessible only to renderer
     public List<Rectangle2D.Double> rectangles = new ArrayList<>();
+
     public List<TextBox> texts = new ArrayList<>();
+
     public List<Hexagon> hexagons = new ArrayList<>();
+
     public List<Ellipse2D.Double> target = new ArrayList<>();
+
     protected String content;
+
     protected StringBuilder readable;
+
     protected String[] pattern;
+
     protected int rowCount = 0;
+
     protected int[] rowHeight;
+
     protected StringBuilder errorMsg = new StringBuilder();
+
     protected int symbolHeight = 0;
+
     protected int symbolWidth = 0;
+
     protected int defaultHeight = 40;
+
     private HumanReadableLocation humanReadableLocation = BOTTOM;
+
     protected StringBuilder encodeInfo = new StringBuilder();
+
     protected byte[] inputBytes;
+
     protected DataType inputDataType = DataType.ECI;
+
     int moduleWidth = 1;
+
     double fontSize = 8;
+
     boolean readerInit;
+
     int eciMode = 3;
+
     private int quietZoneHorizontal = 0;
+
     private int quietZoneVertical = 0;
+
     private String fontName = "Helvetica";
 
     /**
@@ -358,13 +380,10 @@ public abstract class Symbol {
      */
     public void setContent(String inputData) {
         int i;
-
-        content = inputData; // default action
-
+        content = inputData;
         if (inputDataType == DataType.GS1) {
             content = gs1SanityCheck(inputData);
         }
-
         if (inputDataType == DataType.GS1) {
             readable = new StringBuilder();
             for (i = 0; i < inputData.length(); i++) {
@@ -381,11 +400,9 @@ public abstract class Symbol {
                 }
             }
         }
-
         if (inputDataType == DataType.HIBC) {
             content = hibcProcess(inputData);
         }
-
         if (!content.isEmpty()) {
             if (!encode()) {
                 throw new IllegalStateException(errorMsg.toString());
@@ -580,20 +597,16 @@ public abstract class Symbol {
         int xBlock, yBlock;
         double x, y, w, h;
         boolean black;
-
         rectangles.clear();
         texts.clear();
-
         int baseY;
         if (humanReadableLocation == TOP) {
             baseY = getTheoreticalHumanReadableHeight();
         } else {
             baseY = 0;
         }
-
         h = 0;
         y = baseY;
-
         for (yBlock = 0; yBlock < rowCount; yBlock++) {
             black = true;
             x = 0;
@@ -622,9 +635,7 @@ public abstract class Symbol {
             }
             y += h;
         }
-
         mergeVerticalBlocks();
-
         if (humanReadableLocation != NONE && readable.length() > 0) {
             double baseline;
             if (humanReadableLocation == TOP) {

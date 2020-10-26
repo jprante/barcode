@@ -63,12 +63,10 @@ public class Code3Of9 extends Symbol {
 
     @Override
     public boolean encode() {
-
         if (!(content.matches("[0-9A-Z\\. \\-$/+%]+"))) {
             errorMsg.append("Invalid characters in input");
             return false;
         }
-
         StringBuilder p = new StringBuilder();
         StringBuilder dest = new StringBuilder();
         int l = content.length();
@@ -76,8 +74,7 @@ public class Code3Of9 extends Symbol {
         char thischar;
         int counter = 0;
         char check_digit = ' ';
-
-        dest.append("1211212111"); // Start
+        dest.append("1211212111");
         for (int i = 0; i < l; i++) {
             thischar = content.charAt(i);
             charval = positionOf(thischar, LOOKUP);
@@ -85,9 +82,7 @@ public class Code3Of9 extends Symbol {
             p.append(CODE_39[charval]);
         }
         dest.append(p);
-
         if (checkOption == CheckDigit.MOD43) {
-            //User has requested Mod-43 check digit
             counter = counter % 43;
             if (counter < 10) {
                 check_digit = (char) (counter + '0');
@@ -120,18 +115,13 @@ public class Code3Of9 extends Symbol {
                     }
                 }
             }
-
             charval = positionOf(check_digit, LOOKUP);
             p.append(CODE_39[charval]);
-
-            /* Display a space check digit as _, otherwise it looks like an error */
             if (check_digit == ' ') {
                 check_digit = '_';
             }
         }
-
-        dest.append("121121211"); // Stop
-
+        dest.append("121121211");
         if (checkOption == CheckDigit.MOD43) {
             readable = new StringBuilder("*").append(content).append(check_digit).append("*");
             encodeInfo.append("Check Digit: ").append(check_digit).append("\n");

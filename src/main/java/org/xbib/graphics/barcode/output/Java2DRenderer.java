@@ -36,12 +36,12 @@ public class Java2DRenderer implements SymbolRenderer {
     /**
      * The paper (background) color.
      */
-    private final Color paper;
+    private final Color background;
 
     /**
      * The ink (foreground) color.
      */
-    private final Color ink;
+    private final Color foreground;
 
     private final boolean antialias;
 
@@ -50,35 +50,31 @@ public class Java2DRenderer implements SymbolRenderer {
      *
      * @param g2d           the graphics to render to
      * @param scalingFactor the scaling factor to apply
-     * @param paper         the paper (background) color
-     * @param ink           the ink (foreground) color
+     * @param background         the paper (background) color
+     * @param foreground           the ink (foreground) color
      * @param antialias if true give anti alias hint
      */
     public Java2DRenderer(Graphics2D g2d, double scalingFactor,
-                          Color paper, Color ink, boolean antialias) {
+                          Color background, Color foreground, boolean antialias) {
         this.g2d = g2d;
         this.scalingFactor = scalingFactor;
-        this.paper = paper;
-        this.ink = ink;
+        this.background = background;
+        this.foreground = foreground;
         this.antialias = antialias;
     }
 
     @Override
     public void render(Symbol symbol) {
-
         RenderingHints renderingHints = g2d.getRenderingHints();
         if (antialias) {
             g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         } else {
             g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
         }
-
         int marginX = (int) (symbol.getQuietZoneHorizontal() * scalingFactor);
         int marginY = (int) (symbol.getQuietZoneVertical() * scalingFactor);
-
         Color oldColor = g2d.getColor();
-        g2d.setColor(ink);
-
+        g2d.setColor(foreground);
         for (Rectangle2D.Double rect : symbol.rectangles) {
             double x = (rect.x * scalingFactor) + marginX;
             double y = (rect.y * scalingFactor) + marginY;
@@ -86,12 +82,10 @@ public class Java2DRenderer implements SymbolRenderer {
             double h = rect.height * scalingFactor;
             g2d.fill(new Rectangle((int) x, (int) y, (int) w, (int) h));
         }
-
         if (symbol.getHumanReadableLocation() != HumanReadableLocation.NONE) {
             Map<TextAttribute, Object> attributes = new HashMap<>();
             attributes.put(TextAttribute.TRACKING, 0);
             Font f = new Font(symbol.getFontName(), Font.PLAIN, (int) (symbol.getFontSize() * scalingFactor)).deriveFont(attributes);
-
             Font oldFont = g2d.getFont();
             g2d.setFont(f);
             FontMetrics fm = g2d.getFontMetrics();
@@ -103,7 +97,6 @@ public class Java2DRenderer implements SymbolRenderer {
             }
             g2d.setFont(oldFont);
         }
-
         for (Hexagon hexagon : symbol.hexagons) {
             Polygon polygon = new Polygon();
             for (int j = 0; j < 6; j++) {
@@ -112,7 +105,6 @@ public class Java2DRenderer implements SymbolRenderer {
             }
             g2d.fill(polygon);
         }
-
         for (int i = 0; i < symbol.target.size(); i++) {
             Ellipse2D.Double ellipse = symbol.target.get(i);
             double x = (ellipse.x * scalingFactor) + marginX;
@@ -120,13 +112,12 @@ public class Java2DRenderer implements SymbolRenderer {
             double w = (ellipse.width * scalingFactor) + marginX;
             double h = (ellipse.height * scalingFactor) + marginY;
             if ((i & 1) == 0) {
-                g2d.setColor(ink);
+                g2d.setColor(foreground);
             } else {
-                g2d.setColor(paper);
+                g2d.setColor(background);
             }
             g2d.fill(new Ellipse2D.Double(x, y, w, h));
         }
-
         g2d.setColor(oldColor);
         g2d.setRenderingHints(renderingHints);
     }
